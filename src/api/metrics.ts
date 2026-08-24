@@ -12,7 +12,7 @@ export const handlerAdminMetrics = (req: Request, res: Response) => {
   </html>`);
 };
 
-export const handlerHits = (req: Request, res: Response) => {
-    res.set("Content-Type", "text/plain; charset=utf-8");
-    res.send(`Hits: ${config.api.fileServerHits}`);
-};
+// export const handlerHits = (req: Request, res: Response) => {
+//     res.set("Content-Type", "text/plain; charset=utf-8");
+//     res.send(`Hits: ${config.api.fileServerHits}`);
+// };

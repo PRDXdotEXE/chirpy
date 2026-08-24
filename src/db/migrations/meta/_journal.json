@@ -15,6 +15,20 @@
       "when": 1787322064967,
       "tag": "0001_mean_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787389165123,
+      "tag": "0002_foamy_odin",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787412616355,
+      "tag": "0003_aromatic_deadpool",
+      "breakpoints": true
     }
   ]
 }

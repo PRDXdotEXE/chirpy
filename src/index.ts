@@ -7,18 +7,29 @@ import express, {
 
 import { config } from "./config.js";
 
-import { handlerAdminMetrics, handlerHits } from "./api/metrics.js";
+import { handlerAdminMetrics } from "./api/metrics.js";
 
 import { middlewareReset, handlerReset } from "./api/reset.js";
 
 import { handlerReadiness } from "./api/readiness.js";
-import { chrips_validtaor, getChirps, getChirp } from "./api/chirps.js";
+import {
+    chrips_validtaor,
+    getChirps,
+    getChirp,
+    delChirp,
+} from "./api/chirps.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { create_user } from "./api/users.js";
+import { create_user, login } from "./api/users.js";
+import {
+    handlerWebhook,
+    refreshHandler,
+    revokeHandler,
+    updateHandler,
+} from "./lib/auth.js";
 
 const migrationClient = postgres(config.db.url, { max: 1 });
 await migrate(drizzle(migrationClient), config.db.migrationConfig);
@@ -58,7 +69,7 @@ app.use(
     middlewareLogResponses,
 );
 
-app.get("/admin/metrics", handlerAdminMetrics, handlerHits);
+app.get("/admin/metrics", handlerAdminMetrics);
 
 app.post("/admin/reset", middlewareReset, handlerReset);
 
@@ -67,9 +78,14 @@ app.post("/api/healthz", handlerReadiness);
 app.post("/api/users", create_user);
 
 app.post("/api/chirps", chrips_validtaor);
-app.post("/api/login");
+app.post("/api/login", login);
+app.post("/api/refresh", refreshHandler);
+app.post("/api/revoke", revokeHandler);
+app.post("/api/polka/webhooks", handlerWebhook);
 app.get("/api/chirps", getChirps);
 app.get("/api/chirps/:chirpId", getChirp);
+app.put("/api/users", updateHandler);
+app.delete("/api/chirps/:chirpId", delChirp);
 
 app.use(errorHandler);
 

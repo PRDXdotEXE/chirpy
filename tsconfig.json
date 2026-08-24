@@ -1,27 +1,24 @@
 {
+    "compilerOptions": {
+        "target": "esnext",
 
-  "compilerOptions": {
+        "module": "nodenext",
 
-    "target": "esnext",
+        "rootDir": "./src",
 
-    "module": "nodenext",
+        "outDir": "./dist",
 
-    "rootDir": "./src",
+        "strict": true,
 
-    "outDir": "./dist",
+        "moduleResolution": "nodenext",
 
-    "strict": true,
+        "esModuleInterop": true,
 
-    "moduleResolution": "nodenext",
+        "skipLibCheck": true,
+        "types": ["node"]
+    },
 
-    "esModuleInterop": true,
+    "include": ["./src/**/*.ts"],
 
-    "skipLibCheck": true
-
-  },
-
-  "include": ["./src/**/*.ts"],
-
-  "exclude": ["node_modules"]
-
+    "exclude": ["node_modules"]
 }

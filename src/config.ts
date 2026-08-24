@@ -7,6 +7,8 @@ import type { MigrationConfig } from "drizzle-orm/xata-http/migrator";
 type APIConfig = {
     fileServerHits: number;
     platform: string;
+    secretJWT: string;
+    polkaKey: string;
 };
 
 type DBConfig = {
@@ -26,6 +28,8 @@ export const config: Config = {
     api: {
         fileServerHits: 0,
         platform: process.env.PLATFORM!,
+        secretJWT: process.env.SECRET_JWT!,
+        polkaKey: process.env.POLKA_KEY!,
     },
     db: {
         url: process.env.DB_URL!,

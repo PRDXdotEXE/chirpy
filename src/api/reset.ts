@@ -2,7 +2,6 @@ import type { Request, Response, NextFunction } from "express";
 import { config } from "../config.js";
 import { ForbiddenError } from "../errors/index.js";
 
-
 import { resetUsers } from "../db/queries/users.js";
 
 export const middlewareReset = (

@@ -6,5 +6,5 @@ export const handlerReadiness = (req: Request, res: Response) => {
         charset: "utf-8",
     });
 
-    res.send("OK");
+    res.status(200).send("OK");
 };

@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
 import { createUser, getUserByEmail } from "../db/queries/users.js";
 import { BadRequestError, UnAuthorizedError } from "../errors/index.js";
-import { checkPasswordHash, hashPassword } from "../lib/auth.js";
-import { chirps, UserRespose } from "../db/schema.js";
-import { db } from "../db/index.js";
+import {
+    checkPasswordHash,
+    hashPassword,
+    makeJWT,
+    makeRefreshToken,
+} from "../lib/auth.js";
+import { UserRespose } from "../db/schema.js";
+
+import { config } from "../config.js";
+import { createRefresh } from "../db/queries/refresh.js";
 
 export async function create_user(req: Request, res: Response) {
     const email: string = req.body.email;
@@ -18,25 +25,66 @@ export async function create_user(req: Request, res: Response) {
         throw new BadRequestError("Password is not valid");
     }
 
-    const hashedPassword: string = await hashPassword(password);
+    const hashed_password: string = await hashPassword(password);
 
-    const newUser = await createUser({ email, hashedPassword });
+    const newUser = await createUser({
+        email: email,
+        hashedPassword: hashed_password,
+    });
 
     if (!newUser) {
         return res.status(409).json({ message: "User already exists" });
     }
 
     const {
-        hashed_password,
+        hashedPassword,
 
         ...safeUser
-    }: { hashed_password?: string } & UserRespose = newUser;
+    }: { hashedPassword?: string } & UserRespose = newUser;
 
     res.status(201).json(safeUser);
 }
 
-export async function getChirps(req: Request, res: Response) {
-    const [result] = await db.select().from(chirps).orderBy(chirps.createdAt);
+export async function login(req: Request, res: Response) {
+    const { email, password } = req.body;
 
-    res.status(200).json(result);
+    const accessTokenExpiration = 3600;
+
+    const user = await getUserByEmail(email);
+    if (!user) {
+        throw new UnAuthorizedError("incorrect email or password");
+    }
+
+    const match = await checkPasswordHash(password, user.hashedPassword);
+
+    if (!match) {
+        throw new UnAuthorizedError("incorrect email or password");
+    }
+
+    const token: string = makeJWT(
+        user.id as string,
+        accessTokenExpiration,
+        config.api.secretJWT,
+    );
+
+    const refreshTokenExpiration = new Date();
+    refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 60);
+
+    const refreshToken: string = makeRefreshToken();
+
+    await createRefresh({
+        userId: user.id as string,
+        token: refreshToken,
+        expiresAt: refreshTokenExpiration,
+    });
+
+    const {
+        hashedPassword,
+
+        ...safeUser
+    }: { hashedPassword?: string } & UserRespose = user;
+
+    const userWithToken = { ...safeUser, token, refreshToken };
+
+    res.status(200).json(userWithToken);
 }
